@@ -175,6 +175,21 @@ graph TD
 	• 实现平滑的控制效果过渡
 
 
+
+**使用:**
+
+
+```mermaid
+graph TD
+    A[正面提示词嵌入] --> C[ControlNet处理]
+    B[负面提示词嵌入] --> C
+    D[控制图像] --> C
+    C --> E[处理后的提示词嵌入]
+    E --> F[SD模型处理]
+
+```
+
+
 ## 3-Diffusers Demo
 
 ```bash
