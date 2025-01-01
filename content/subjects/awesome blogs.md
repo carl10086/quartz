@@ -7,13 +7,11 @@
 - 没有优先级和推荐，可能会加粗表示推荐，顺序就是阅读的顺序，按时间倒序
 
 
-
-
 ### 2024-10
 
-- [ ] [traceloop](https://github.com/traceloop/openllmetry) : 专注于 `LLM` 应用 的监控能力, 基于 `OTel`
-- [ ] [kruise](https://github.com/openkruise/kruise):  提供了基于 `k8s` 核心能力扩展的能力 
-- [ ] [Writing an OS in RUST](https://os.phil-opp.com/zh-CN/) : 基于 `RUST` 手写操作系统内核
+- [x] [traceloop](https://github.com/traceloop/openllmetry) : 专注于 `LLM` 应用 的监控能力, 基于 `OTel` ✅ 2024-12-18
+- [x] [kruise](https://github.com/openkruise/kruise):  提供了基于 `k8s` 核心能力扩展的能力 ✅ 2024-12-18
+- [x] [Writing an OS in RUST](https://os.phil-opp.com/zh-CN/) : 基于 `RUST` 手写操作系统内核 ✅ 2024-12-18
 - [x] `cortine vs vthread`: 编程范式的区别, `routine` vs 虚拟线程 ✅ 2024-11-13
 - [x] [jMolecules](https://github.com/xmolecules/jmolecules) : 架构的抽象框架 ✅ 2024-11-13
 
