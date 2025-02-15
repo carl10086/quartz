@@ -2,6 +2,10 @@
 
 - [x] k8s system: [[4-K8s-App-Design]] ✅ 2024-12-18
 
+## 2025-1
+
+- [Supir](https://github.com/kijai/ComfyUI-SUPIR) : 最好的 超分模型之一
+
 ## 2024-12
 
 - [ ] [dokka](https://github.com/Kotlin/dokka): 一个 `Kotlin` `documentation` 机制 ;

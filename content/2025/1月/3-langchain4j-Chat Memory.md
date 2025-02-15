@@ -58,7 +58,7 @@
 - `TokenWindowChatMemory`:
 	- 基于 `token` 的数量控制
 	- 保留最新的 `N` 个 `token`
-	- 消息是不可分割的a
+	- 消息是不可分割的
 	- 需要 `Tokenizer` 支持
 
 ## 3-Persistence

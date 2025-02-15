@@ -313,4 +313,51 @@ models offload to cpu ok: 23695.94 MB
 
 - 成功的装载和卸载了 `gpu`
 
-而 `vae` 比较小，切换也不适合上面的逻辑.
+
+**)-可选: 修复 model_management 的 model_unload 函数**
+
+```python
+    def model_unload(self, memory_to_free=None, unpatch_weights=True):
+        if memory_to_free is not None:
+            if memory_to_free < self.model.loaded_size():
+                freed = self.model.partially_unload(self.model.offload_device, memory_to_free)
+                if freed >= memory_to_free:
+                    return False
+        self.model.detach(unpatch_weights)
+        if self.model_finalizer is not None:
+            self.model_finalizer.detach()
+            self.model_finalizer = None
+        self.real_model = None
+        return True
+```
+
+
+- 由于有的时候 `parent is None` 导致 `model_finalizer` 不存在
+
+
+**)-VAE 的设备切换**
+
+```python
+    def vae_decode(self, samples):
+        """
+        把 samples 用 vae 解码为 pil_images
+        """
+        self.vae.first_stage_model.to(GPU_DEVICE)
+        images = VAEDecode().decode(self.vae, {"samples": samples})[0]
+        self.vae.first_stage_model.to(CPU_DEVICE)
+        pil_images = []
+
+        for image in images:
+            i = 255. * image.cpu().numpy()
+            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            pil_images.append(img)
+
+        return pil_images
+```
+
+
+**)-CLIP 的设备切换**
+
+`clip.patcher` 就是其中的模型，类似 clip
+
+
