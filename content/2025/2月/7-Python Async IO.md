@@ -185,16 +185,12 @@ sequenceDiagram
 
 ## 2-Rules of Async IO
 
-- The syntax `async def` introduces either a **native coroutine** or an **asynchronous generator**. The expressions `async with` and `async for` are also valid, and you’ll see them later on.
-- The keyword `await` passes function control back to the event loop. (It suspends the execution of the surrounding coroutine.) If Python encounters an `await f()` expression in the scope of `g()`, this is how `await` tells the event loop, “Suspend execution of `g()` until whatever I’m waiting on—the result of `f()`—is returned. In the meantime, go let something else run.”
-
-
 关键语法:
 
 1.	协程定义：
-	- 使用⁠async def定义协程函数
-	- 协程可以包含⁠await、⁠return或⁠yield语句（都是可选的）
-	- 空的协程定义⁠async def noop(): pass也是有效的
+	- 使用⁠ `async def` 定义协程函数
+	- 协程可以包含⁠ `await`、⁠`return`或⁠ `yield` 语句（都是可选的）
+	- 空的协程定义⁠ `async def noop()`: `pass` 也是有效的
 2.	`await` 关键字：
 	- 只能在协程函数内部使用
 	- 用于暂停当前协程，将控制权交回事件循环
@@ -243,5 +239,88 @@ async def py35_coro():
 
 ```
 
+## 3-Quick start
 
-// todo
+**1)-await 会阻塞直到成功**
+
+```python
+import asyncio  
+import time  
+  
+  
+async def say_after(delay, what):  
+    await asyncio.sleep(delay)  
+    print(what)  
+  
+  
+async def main():  
+    print(f"started at {time.strftime('%X')}")  
+    await say_after(1, "hello")  
+    await say_after(2, "world")  
+    print(f"finished at {time.strftime('%X')}")  
+	
+asyncio.run(main())
+```
+
+结果如下:
+
+```
+started at 11:48:12
+hello
+world
+finished at 11:48:15
+```
+
+**2)-使用 task 才能并行**
+
+```python
+import asyncio  
+import time  
+  
+async def say_after(delay, what):  
+    await asyncio.sleep(delay)  
+    print(what)  
+  
+async def main():  
+    print(f"started at {time.strftime('%X')}")  
+  
+    task1 = asyncio.create_task(say_after(1, 'hello'))  
+    task2 = asyncio.create_task(say_after(1, 'world'))  
+  
+    await task1  
+    await task2  
+  
+    print(f"finished at {time.strftime('%X')}")  
+  
+asyncio.run(main())
+```
+
+**3)-Coroutines**
+
+什么是 **Awaitable** 可等待对象.
+
+1. 协程: `coroutines`
+2. 任务: `Tasks`
+3. `Futures`: `Futures`
+
+```python
+import asyncio
+
+async def nested():
+    return 42
+
+async def main():
+    # Nothing happens if we just call "nested()".
+    # A coroutine object is created but not awaited,
+    # so it *won't run at all*.
+    nested()  # will raise a "RuntimeWarning".
+
+    # Let's do it differently now and await it:
+    print(await nested())  # will print "42".
+
+asyncio.run(main())
+```
+
+**Important**
+
+## refer

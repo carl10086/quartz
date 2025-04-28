@@ -8,9 +8,6 @@
 
 > 记录一下本地环境安装流程
 
-```bash
-git clone --recurse-submodules git@git.yuaiweiwu.com:team/skywalking-java.git
-```
 
 ```bash
 # optionally, 感觉不一定需要
