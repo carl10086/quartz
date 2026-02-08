@@ -7,6 +7,11 @@
 - 没有优先级和推荐，可能会加粗表示推荐，顺序就是阅读的顺序，按时间倒序
 
 
+### 2025-11
+
+- [Google Api Design](https://docs.cloud.google.com/apis/design)
+
+
 ### 2024-10
 
 - [x] [traceloop](https://github.com/traceloop/openllmetry) : 专注于 `LLM` 应用 的监控能力, 基于 `OTel` ✅ 2024-12-18
