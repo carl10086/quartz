@@ -272,7 +272,272 @@ private markDirty(): void {
 - `awaitWriteFinish` 防抖，避免文件写入过程中触发
 - `setTimeout` 二次防抖，批量处理文件变更
 
-### 3. 嵌入管理
+---
+
+### 4. Memory Flush 机制（核心！）
+
+**文件**: `src/auto-reply/reply/memory-flush.ts`
+
+这是 OpenClaw Memory 系统**最关键的设计**——Agentic Flush 的完整实现。
+
+#### 4.1 Prompt 构造流程
+
+**基础 User Prompt**（第 13-18 行）：
+```typescript
+export const DEFAULT_MEMORY_FLUSH_PROMPT = [
+  "Pre-compaction memory flush.",
+  "Store durable memories now (use memory/YYYY-MM-DD.md; create memory/ if needed).",
+  "IMPORTANT: If the file already exists, APPEND new content only and do not overwrite existing entries.",
+  `If nothing to store, reply with ${SILENT_REPLY_TOKEN}.`,
+].join(" ");
+```
+
+**基础 System Prompt**（第 20-24 行）：
+```typescript
+export const DEFAULT_MEMORY_FLUSH_SYSTEM_PROMPT = [
+  "Pre-compaction memory flush turn.",
+  "The session is near auto-compaction; capture durable memories to disk.",
+  `You may reply, but usually ${SILENT_REPLY_TOKEN} is correct.`,
+].join(" ");
+```
+
+#### 4.2 Prompt 处理三步曲
+
+**Step 1: 时间戳替换**（`resolveMemoryFlushPromptForRun`）
+```typescript
+const dateStamp = formatDateStampInTimezone(nowMs, userTimezone);
+const withDate = params.prompt.replaceAll("YYYY-MM-DD", dateStamp);
+// 添加时间线
+return `${withDate}\n${timeLine}`;
+// 结果示例: "Current time: 2026-01-15 14:30:00 PST"
+```
+
+**关键细节**：使用**用户配置的时区**，不是 UTC！从 `cfg.agents.defaults.userTimezone` 获取。
+
+**Step 2: NO_REPLY 强制机制**（`ensureNoReplyHint`）
+```typescript
+function ensureNoReplyHint(text: string): string {
+  if (text.includes(SILENT_REPLY_TOKEN)) {
+    return text;
+  }
+  // 如果用户自定义 prompt 忘了加 NO_REPLY，自动追加
+  return `${text}\n\nIf no user-visible reply is needed, start with NO_REPLY.`;
+}
+```
+
+**Step 3: 合并 System Prompt**
+```typescript
+const flushSystemPrompt = [
+  params.followupRun.run.extraSystemPrompt,
+  memoryFlushSettings.systemPrompt,
+].filter(Boolean).join("\n\n");
+```
+
+#### 4.3 最终构造的完整 Prompt
+
+```
+【System Prompt】
+Pre-compaction memory flush turn.
+The session is near auto-compaction; capture durable memories to disk.
+You may reply, but usually NO_REPLY is correct.
+
+【User Prompt】
+Pre-compaction memory flush.
+Store durable memories now (use memory/2026-01-15.md; create memory/ if needed).
+IMPORTANT: If the file already exists, APPEND new content only and do not overwrite existing entries.
+If nothing to store, reply with NO_REPLY.
+Current time: 2026-01-15 14:30:00 PST
+
+If no user-visible reply is needed, start with NO_REPLY.
+```
+
+#### 4.4 可配置项
+
+通过 `agents.defaults.compaction.memoryFlush`：
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `true` | 是否启用 Flush |
+| `softThresholdTokens` | `4000` | 触发阈值（距离上限的 token 数） |
+| `prompt` | 见上文 | 覆盖 User Prompt |
+| `systemPrompt` | 见上文 | 覆盖 System Prompt |
+| `forceFlushTranscriptBytes` | `2MB` | 强制触发阈值（文件大小） |
+
+#### 4.5 触发条件
+
+```typescript
+// shouldRunMemoryFlush() 逻辑
+if (totalTokens >= contextWindow - reserveTokens - softThreshold) {
+  // 且本 compaction cycle 未执行过
+  if (!hasAlreadyFlushedForCurrentCompaction(entry)) {
+    return true;  // 触发 Flush！
+  }
+}
+```
+
+**关键洞察**：
+- **软阈值**：token 接近上限时触发（默认提前 4000 tokens）
+- **硬阈值**：transcript 文件超过 2MB 强制触发
+- **防重**：每个 compaction cycle 只触发一次
+
+---
+
+### 5. 长期记忆 MEMORY.md 管理
+
+**核心区别**：与 Daily 不同，**MEMORY.md 没有自动 Flush 机制**。
+
+#### 5.1 为什么没有 Flush 机制？
+
+这是 OpenClaw 的**刻意设计选择**：
+
+```
+Daily Memory:    自动 Flush → 防止信息丢失（兜底机制）
+MEMORY.md:       无自动机制 → 保证记忆质量（人工精选）
+```
+
+**设计哲学**：
+- Daily 是"**原始记录**"——防止上下文压缩导致的信息丢失
+- MEMORY.md 是"**精选知识**"——只有经过人工判断值得长期保留的才写入
+
+#### 5.2 AGENTS.md 如何指导 AI 写入
+
+虽然没有 Flush Prompt，但 AI 通过 **AGENTS.md** 持续获得写入指导。
+
+**AGENTS.md 是 Bootstrap 文件**（`src/agents/workspace.ts` 第 25 行）：
+```typescript
+export const DEFAULT_AGENTS_FILENAME = "AGENTS.md";
+```
+
+**注入 System Prompt 流程**：
+
+1. **加载 Bootstrap 文件**（`src/agents/pi-embedded-helpers/bootstrap.ts`）：
+```typescript
+export function buildBootstrapContextFiles(files: WorkspaceBootstrapFile[], ...)
+  → 处理 AGENTS.md 等文件
+```
+
+2. **注入 Project Context**（`src/agents/system-prompt.ts` 第 612-644 行）：
+```typescript
+const contextFiles = params.contextFiles ?? [];
+if (validContextFiles.length > 0) {
+  lines.push("# Project Context", "");
+  for (const file of validContextFiles) {
+    lines.push(`## ${file.path}`, "", file.content, "");  // AGENTS.md 内容注入
+  }
+}
+```
+
+**AGENTS.md 中的记忆指导**（`docs/reference/templates/AGENTS.md`）：
+```markdown
+### 🧠 MEMORY.md - Your Long-Term Memory
+- **ONLY load in main session** (direct chats with your human)
+- **DO NOT load in shared contexts** (security consideration)
+- You can **read, edit, and update** MEMORY.md freely in main sessions
+- Write significant events, thoughts, decisions, opinions, lessons learned
+- This is your curated memory — the distilled essence, not raw logs
+
+### 📝 Write It Down - No "Mental Notes"!
+- **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
+- "Mental notes" don't survive session restarts. Files do.
+- When someone says "remember this" → update `memory/YYYY-MM-DD.md` or relevant file
+- When you learn a lesson → document it so future-you doesn't repeat it
+```
+
+#### 5.3 写入触发方式
+
+**方式 1: 用户主动要求**（主要方式）
+```
+用户: "记住我喜欢 VS Code"
+用户: "把这个决策写入长期记忆"
+用户: "remember this"
+```
+
+AI 判断：长期偏好/重要决策 → 写入 MEMORY.md
+
+**方式 2: AI 自主判断**
+```
+AI: "我注意到您经常提到这个偏好，Should I save this to MEMORY.md?"
+或
+AI 直接执行：完成重要配置后自动写入
+```
+
+**方式 3: 人工直接编辑**
+- 用户直接编辑 `MEMORY.md` 文件
+- 文件监控自动索引（与 Daily 相同机制）
+
+#### 5.4 写入实现机制
+
+与 Daily 相同，**没有专门的 append API**：
+
+```typescript
+// AI 的执行逻辑：
+1. read file("MEMORY.md")
+   → 得到现有内容
+
+2. 在内存中拼接：
+   existingContent + "\n" + newContent
+
+3. write file("MEMORY.md", combinedContent)
+   → 原子替换整个文件
+```
+
+**关键区别**：
+- Daily：被 Prompt 强制要求写入（被动）
+- MEMORY.md：AI 根据 AGENTS.md 指导自主决定（主动）
+
+#### 5.5 记忆读取：同样通过 AGENTS.md 指导
+
+**重要澄清**：OpenClaw **没有代码层面**的自动读取机制！
+
+**文档中的误解**：
+```
+❌ 错误理解："启动时自动读取 today + yesterday"
+✅ 正确理解："AGENTS.md 指导 AI 去读取"
+```
+
+**AGENTS.md 中的读取指导**（`docs/reference/templates/AGENTS.md` 第 20-22 行）：
+```markdown
+## Every Session
+
+Before doing anything else:
+
+1. Read `SOUL.md` — this is who you are
+2. Read `USER.md` — this is who you're helping
+3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
+4. **If in MAIN SESSION**: Also read `MEMORY.md`
+```
+
+**实现机制**：
+
+```
+AGENTS.md (包含读取指导)
+    ↓
+buildBootstrapContextFiles() 处理
+    ↓
+注入 System Prompt 的 "# Project Context"
+    ↓
+AI 看到："Read memory/YYYY-MM-DD.md (today + yesterday)"
+    ↓
+AI 自主执行：调用 read 工具读取文件
+```
+
+**关键洞察**：
+- ❌ 没有代码自动读取 daily 文件
+- ❌ 没有代码自动读取 MEMORY.md
+- ✅ 完全依赖 AGENTS.md 的 Prompt 指导
+- ✅ AI 自主决定是否执行（虽然 AGENTS.md 强烈建议执行）
+
+**对比总结**：
+
+| 操作 | Daily (memory/*.md) | Permanent (MEMORY.md) |
+|------|---------------------|----------------------|
+| **写入** | Flush Prompt 强制触发 | AGENTS.md 指导 + AI 自主 |
+| **读取** | AGENTS.md 指导读取 | AGENTS.md 指导读取 |
+| **自动性** | 写入自动，读取非自动 | 读写都非自动 |
+
+---
+
+### 6. 嵌入管理
 
 **文件**: `manager-embedding-ops.ts`
 
@@ -322,7 +587,7 @@ private async embedChunksWithBatch(
 - 缓存命中率通常 > 80%
 - 成本降低 90%+
 
-### 4. 搜索实现
+### 7. 搜索实现
 
 **文件**: `manager-search.ts`, `hybrid.ts`
 
