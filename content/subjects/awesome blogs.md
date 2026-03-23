@@ -7,6 +7,13 @@
 - 没有优先级和推荐，可能会加粗表示推荐，顺序就是阅读的顺序，按时间倒序
 
 
+
+## 2026
+
+
+- https://x.com/HiTw93/status/2032091246588518683
+
+
 ### 2025-11
 
 - [Google Api Design](https://docs.cloud.google.com/apis/design)

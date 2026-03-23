@@ -1,5 +1,3 @@
-# Crush 项目概览
-
 ## 项目背景与设计目标
 
 **Crush** 是由 [Charm Bracelet](https://charm.land) 开发的终端 AI 编程助手，旨在将大型语言模型（LLM）的能力无缝集成到开发者的终端工作流中。项目的核心设计哲学是：
