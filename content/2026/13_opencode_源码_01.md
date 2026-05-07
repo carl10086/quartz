@@ -1,3 +1,10 @@
+---
+title: "源码 01"
+date: 2026-02-10
+tags:
+  - opencode
+---
+
 
 ## 📖 1：System Prompt 构建 — AI 的"性格"从哪来？
 

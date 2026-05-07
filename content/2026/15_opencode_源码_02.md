@@ -1,3 +1,10 @@
+---
+title: "源码 02"
+date: 2026-03-11
+tags:
+  - opencode
+---
+
 
 ## 🚀 第一部分：动态组装 System Prompt
 

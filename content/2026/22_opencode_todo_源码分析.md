@@ -1,3 +1,10 @@
+---
+title: "todo 源码分析"
+date: 2026-03-04
+tags:
+  - opencode
+---
+
 ## 1. 架构概览
 
 ```

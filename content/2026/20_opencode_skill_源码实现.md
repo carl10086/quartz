@@ -1,3 +1,10 @@
+---
+title: "skill 源码实现"
+date: 2026-02-28
+tags:
+  - opencode
+---
+
 
 ## 一、什么是 Skill？（概念篇）
 

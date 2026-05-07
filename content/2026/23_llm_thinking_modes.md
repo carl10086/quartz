@@ -1,3 +1,10 @@
+---
+title: "thinking modes"
+date: 2026-03-05
+tags:
+  - llm
+---
+
 # LLM 推理模式 (Thinking Modes)
 
 ## 1. 核心概念：双系统理论
