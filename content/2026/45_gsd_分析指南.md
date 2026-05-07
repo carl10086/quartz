@@ -1,5 +1,5 @@
 ---
-title: "分析指南"
+title: "gsd 分析指南"
 date: 2026-03-23
 tags:
   - gsd

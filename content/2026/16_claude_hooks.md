@@ -1,5 +1,5 @@
 ---
-title: "hooks"
+title: "claude hooks"
 date: 2026-02-11
 tags:
   - claude

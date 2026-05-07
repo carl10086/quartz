@@ -1,5 +1,5 @@
 ---
-title: "cmux env lost"
+title: "misc cmux env lost"
 date: 2026-05-06
 tags:
   - misc

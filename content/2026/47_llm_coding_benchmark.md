@@ -1,5 +1,5 @@
 ---
-title: "coding benchmark"
+title: "llm coding benchmark"
 date: 2026-04-27
 tags:
   - llm

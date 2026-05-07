@@ -1,5 +1,5 @@
 ---
-title: "harness design"
+title: "misc harness design"
 date: 2026-03-26
 tags:
   - misc

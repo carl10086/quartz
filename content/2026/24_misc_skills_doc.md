@@ -1,5 +1,5 @@
 ---
-title: "skills doc"
+title: "misc skills doc"
 date: 2026-03-11
 tags:
   - misc

@@ -1,5 +1,5 @@
 ---
-title: "superpowers"
+title: "claude superpowers"
 date: 2026-02-10
 tags:
   - claude

@@ -1,5 +1,5 @@
 ---
-title: "codebase mapper"
+title: "gsd codebase mapper"
 date: 2026-03-24
 tags:
   - gsd

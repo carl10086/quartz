@@ -1,5 +1,5 @@
 ---
-title: "qwen3 embedding quick start"
+title: "llm qwen3 embedding quick start"
 date: 2026-02-08
 tags:
   - llm

@@ -1,5 +1,5 @@
 ---
-title: "mem deep dive"
+title: "claude mem deep dive"
 date: 2026-03-15
 tags:
   - claude

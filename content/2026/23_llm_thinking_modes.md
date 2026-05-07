@@ -1,5 +1,5 @@
 ---
-title: "thinking modes"
+title: "llm thinking modes"
 date: 2026-03-05
 tags:
   - llm

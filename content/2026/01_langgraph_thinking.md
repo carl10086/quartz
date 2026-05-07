@@ -1,5 +1,5 @@
 ---
-title: "thinking"
+title: "langgraph thinking"
 date: 2026-01-18
 tags:
   - langgraph

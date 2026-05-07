@@ -1,5 +1,5 @@
 ---
-title: "向量 vs 图"
+title: "mem0 向量 vs 图"
 date: 2026-02-08
 tags:
   - mem0

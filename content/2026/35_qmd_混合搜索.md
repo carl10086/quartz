@@ -1,5 +1,5 @@
 ---
-title: "混合搜索"
+title: "qmd 混合搜索"
 date: 2026-03-07
 tags:
   - qmd

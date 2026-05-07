@@ -1,5 +1,5 @@
 ---
-title: "turboquant quickstart"
+title: "misc turboquant quickstart"
 date: 2026-03-26
 tags:
   - misc

@@ -1,5 +1,5 @@
 ---
-title: "python314 whatsnew"
+title: "misc python314 whatsnew"
 date: 2026-03-12
 tags:
   - misc

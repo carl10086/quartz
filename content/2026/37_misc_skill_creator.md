@@ -1,5 +1,5 @@
 ---
-title: "skill creator"
+title: "misc skill creator"
 date: 2026-03-15
 tags:
   - misc

@@ -1,5 +1,5 @@
 ---
-title: "sub agents"
+title: "claude sub agents"
 date: 2026-02-09
 tags:
   - claude

@@ -1,5 +1,5 @@
 ---
-title: "System Prompt 的本质：它为什么能"听话"？"
+title: "llm system prompt essence"
 date: 2026-05-08
 tags:
   - llm

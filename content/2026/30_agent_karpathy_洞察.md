@@ -1,5 +1,5 @@
 ---
-title: "karpathy 洞察"
+title: "agent karpathy 洞察"
 date: 2026-03-23
 tags:
   - agent

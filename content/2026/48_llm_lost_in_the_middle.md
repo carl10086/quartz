@@ -1,5 +1,5 @@
 ---
-title: "lost in the middle"
+title: "llm lost in the middle"
 date: 2026-03-26
 tags:
   - llm

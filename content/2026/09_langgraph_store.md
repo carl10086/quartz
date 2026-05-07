@@ -1,5 +1,5 @@
 ---
-title: "store"
+title: "langgraph store"
 date: 2026-02-09
 tags:
   - langgraph

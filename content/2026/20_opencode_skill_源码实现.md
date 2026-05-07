@@ -1,5 +1,5 @@
 ---
-title: "skill 源码实现"
+title: "opencode skill 源码实现"
 date: 2026-02-28
 tags:
   - opencode

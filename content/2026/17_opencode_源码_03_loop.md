@@ -1,5 +1,5 @@
 ---
-title: "源码 03 loop"
+title: "opencode 源码 03 loop"
 date: 2026-02-12
 tags:
   - opencode

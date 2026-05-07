@@ -1,5 +1,5 @@
 ---
-title: "tools system"
+title: "crush tools system"
 date: 2026-03-10
 tags:
   - crush

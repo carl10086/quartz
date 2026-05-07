@@ -1,5 +1,5 @@
 ---
-title: "architecture"
+title: "crush architecture"
 date: 2026-03-10
 tags:
   - crush

@@ -1,5 +1,5 @@
 ---
-title: "设计思想"
+title: "qmd 设计思想"
 date: 2026-03-06
 tags:
   - qmd
